@@ -75,7 +75,11 @@ having count(order_id) > 3;
 
 
 
-
+######Top 5 Cities with the most breakfast orders are Volos - Rodos - Xanthi - Ιoannina - Larissa.
+##### Rodos, Volos and Xanthi are the top three, breakfast orders are the most at these cities
+#### however, Larissa's users spend more in ordering meat rather than breakfast and customers at Ioannina
+### prefer meat as well - however the difference beetween orders of meat and breakfast is not such a large 
+## as we notice in Larissa's customers.
 
 
 #################### Query 2 ###########################
