@@ -1,0 +1,90 @@
+
+#################### Query 1 ###########################
+
+
+SELECT *
+FROM `efood2022-350018.main_assessment.orders`;
+
+#find cities that exceed 1000 orders
+
+SELECT city, count(order_id) as order_sum
+from `efood2022-350018.main_assessment.orders`
+group by city
+having count(order_id) > 1000;
+
+-----------------------------------------------
+
+
+#creating breakfast_basket
+
+SELECT city, sum(amount)/ count(order_id) as breakfast_basket
+from `efood2022-350018.main_assessment.orders`
+WHERE cuisine = 'Breakfast'
+group by city, cuisine
+having count(order_id) > 1000;
+
+# creating efood_basket
+
+SELECT city, sum(amount)/ count(order_id) as efood_basket
+from `efood2022-350018.main_assessment.orders`
+WHERE cuisine <> 'Breakfast'
+group by city, cuisine
+having count(order_id) > 1000;
+
+
+
+# breakfast frquency 
+# purchase frequency = number of orders / number of unique customers
+# grouped by cuisine = breakfast 
+
+SELECT city, count(order_id)/count(distinct(user_id)) as breakfast_freq
+from `efood2022-350018.main_assessment.orders`
+WHERE cuisine = 'Breakfast'
+group by city, cuisine
+having count(order_id) > 1000;
+
+# efood frequency
+# purchase frequency = number of orders / number of unique customers
+# grouped by cuisine = efood 
+
+SELECT city, count(order_id)/count(distinct(user_id)) as efood_freq
+from `efood2022-350018.main_assessment.orders`
+WHERE cuisine <> 'Breakfast'
+group by city, cuisine
+having count(order_id) > 1000;
+
+------------------------------------------------------
+
+#breakfast ser3 freq
+
+
+SELECT city, (count(order_id)/ count(distinct(user_id)) /count(user_id)) * 100 as breakfast_freq3
+from `efood2022-350018.main_assessment.orders`
+WHERE cuisine = 'Breakfast'
+group by city, cuisine
+having count(order_id) > 3;
+
+# e-food user3 frequency
+
+
+SELECT city, (count(order_id)/count(distinct(user_id)) /count(user_id)) * 100 as efood_freq3
+from `efood2022-350018.main_assessment.orders`
+WHERE cuisine <> 'Breakfast'
+group by city, cuisine
+having count(order_id) > 3;
+
+
+
+
+
+
+#################### Query 2 ###########################
+
+
+
+# percentage of orders do top 10 users of each city
+
+select city, user_id, count(order_id) * 100 as percentage_order,
+from `efood2022-350018.main_assessment.orders`
+group by city, user_id
+limit 10;
