@@ -34,18 +34,16 @@ having count(order_id) > 1000;
 
 
 # breakfast frquency 
-
-
-
-
 # purchase frequency = number of orders / number of unique customers
 # grouped by cuisine = breakfast 
+
 
 SELECT city, count(order_id)/count(distinct(user_id)) as breakfast_freq
 from `efood2022-350018.main_assessment.orders`
 WHERE cuisine = 'Breakfast'
 group by city, cuisine
 having count(order_id) > 1000;
+
 
 # efood frequency
 # purchase frequency = number of orders / number of unique customers
@@ -59,7 +57,7 @@ having count(order_id) > 1000;
 
 
 
-# breakfast % users 
+# breakfast % users that exceed 3 orders 
 
 select city, count(distinct user_id)/count(user_id) as freq_break3
 from `efood2022-a.main_assessment.orders`
@@ -69,7 +67,7 @@ having count(order_id) > 1000
 AND count(distinct user_id) > 3
 order by freq_break3 DESC
 
-# efood % users
+# efood % users that exceed 3 orders 
 
 select city, count(distinct user_id)/count(user_id) as freq_efood3
 from `efood2022-a.main_assessment.orders`
