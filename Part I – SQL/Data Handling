@@ -27,7 +27,7 @@ having count(order_id) > 1000;
 
 SELECT city, sum(amount)/ count(order_id) as efood_basket
 from `efood2022-350018.main_assessment.orders`
-WHERE cuisine <> 'Breakfast'
+WHERE cuisine != 'Breakfast'
 group by city, cuisine
 having count(order_id) > 1000;
 
@@ -51,7 +51,7 @@ having count(order_id) > 1000;
 
 SELECT city, count(order_id)/count(distinct(user_id)) as efood_freq
 from `efood2022-350018.main_assessment.orders`
-WHERE cuisine <> 'Breakfast'
+WHERE cuisine != 'Breakfast'
 group by city, cuisine
 having count(order_id) > 1000;
 
