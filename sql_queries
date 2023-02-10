@@ -1,0 +1,99 @@
+#################################
+#####     1st query    #########
+################################
+
+
+WITH base_data AS (
+  SELECT 
+    city, 
+    cuisine, 
+    COUNT(DISTINCT order_id) AS total_orders, 
+    COUNT(DISTINCT user_id) AS total_users, 
+    SUM(amount) AS total_amount
+  FROM 
+    `efood2022-a.main_assessment.orders`
+  GROUP BY 
+    city, cuisine
+),
+breakfast_data AS (
+  SELECT 
+    city, 
+    total_orders, 
+    total_users, 
+    total_amount,
+    total_amount / total_orders AS basket,
+    total_orders / total_users AS frequency
+  FROM 
+    base_data
+  WHERE 
+    cuisine = 'Breakfast' AND total_orders > 1000
+),
+all_data AS (
+  SELECT 
+    city, 
+    total_orders, 
+    total_users, 
+    total_amount,
+    total_amount / total_orders AS basket,
+    total_orders / total_users AS frequency
+  FROM 
+    base_data
+  WHERE 
+    total_orders > 1000
+)
+SELECT 
+  breakfast_data.city, 
+  breakfast_data.basket AS breakfast_basket, 
+  all_data.basket AS total_basket,
+  breakfast_data.frequency AS breakfast_frequency,
+  all_data.frequency AS total_frequency,
+  (SELECT 
+    COUNT(DISTINCT user_id) 
+  FROM 
+    `efood2022-a.main_assessment.orders`
+  WHERE 
+    city = breakfast_data.city 
+    AND frequency > 3) / all_data.total_users * 100 AS percent_exceeding_3_orders
+FROM 
+  breakfast_data 
+  JOIN all_data
+  ON breakfast_data.city = all_data.city
+ORDER BY 
+  breakfast_data.total_orders DESC
+LIMIT 5
+
+
+
+
+#####################################
+#####       2nd query       #######        
+####################################
+
+WITH city_data AS (
+  SELECT 
+    city, 
+    user_id, 
+    COUNT(order_id) AS user_orders
+  FROM 
+    `efood2022-a.main_assessment.orders`
+  GROUP BY 
+    city, user_id
+),
+top_users AS (
+  SELECT 
+    city, 
+    user_id, 
+    user_orders,
+    ROW_NUMBER() OVER (PARTITION BY city ORDER BY user_orders DESC) AS user_rank
+  FROM 
+    city_data
+)
+SELECT 
+  city, 
+  SUM(user_orders) / (SELECT COUNT(order_id) FROM `efood2022-a.main_assessment.orders` WHERE city = top_users.city) * 100 AS percent_contributed
+FROM 
+  top_users
+WHERE 
+  user_rank <= 10
+GROUP BY 
+  city
