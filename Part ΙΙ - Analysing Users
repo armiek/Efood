@@ -1,133 +1,68 @@
-##################### PART II #########################
+                                               ##################### PART II #########################
+
+
 
 #import libraries 
 
-import numpy as np
 import pandas as pd
+import numpy as np
+import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-import seaborn as sns
+import numpy as np
+import datetime
+from matplotlib import pyplot as plt
+from matplotlib import colors as mpl_colors
+%matplotlib inline
 
 
 
-############checking for missing values 
+#checking for missing values & descriptive analysis 
+
 
 orders.isnull()
 
-
-##########46 unique cities
+#there are 46 unique cities
 
 orders.city.nunique()
 orders.city.unique()
 
 
-#####drop dublicates
+# drop dublicates
 
 city_users=orders[['city','user_id']].drop_duplicates()
 
-# Top 10 cities' customer
-
-orders.city.value_counts()[:10]
-
-###Larissa is the city with largest amount of order - checking thoroughly 
-
-larisa_orders=orders[orders.city=='Λάρισα']
-
-larisa_orders.describe ()
 
 
-# we can identify that the most users are cituated at the city of Larisa - 
-# top five Larisa - Volos - Ioannina - Rodos - Ksanthi
+# total amount of orders per city 
 
-df=city_users.groupby(['city'])['user_id'].aggregate('count').reset_index().sort_values('user_id', ascending=False)
-
-
-
-df.hist('user_id', bins=35, alpha=0.8);
-plt.title('Distribution of users');
-plt.xlabel('user_id');
+df_total_amount = df_orders.city.value_counts()[:10]
+df_total_amount
 
 
-#######Histogram for age distribution by cuisine - breakfast and breakfast vs e-food for top five cities with the largest amount
-#######of orders 
+# let’s check how much are sales happened for each cuisine and 
+# how much amount of orders for each cuisine is being sold
 
-plt.hist('user_id', data=orders[orders['cuisine'] == 'Breakfast'], alpha=0.5, label='breakfast');
+cuisine_df = df_orders[["cuisine","amount"]]
+cuisine_df.groupby("cuisine").sum().plot(kind="bar")
 
-plt.hist('user_id', data=orders[orders['cuisine'] != 'Breakfast'], alpha=0.5, label='efood');
-
-#plt.hist('user_id', data=orders[orders['cuisine'] == 'Street food'], alpha=0.5, label='street food');
-#plt.hist('user_id', data=orders[orders['cuisine'] == 'Italian'], alpha=0.5, label='italian');
-#plt.hist('user_id', data=orders[orders['cuisine'] == 'meat'], alpha=0.5, label='meat');
-
-plt.title('Distribution of Βreakfast');
-plt.xlabel('cuisine');
-plt.legend();
-
-######chcking for correlations and plotting a heat map order to find relations between variables
-
-orders.corr()
-
-plt.figure(figsize = (12, 9))
-s = sns.heatmap(orders.corr(),
-               annot = True, 
-               cmap = 'viridis',
-               vmin = -1, 
-               vmax = 1)
-s.set_yticklabels(s.get_yticklabels(), rotation = 0, fontsize = 12)
-s.set_xticklabels(s.get_xticklabels(), rotation = 90, fontsize = 12)
-plt.title('Correlation Heatmap')
-plt.show()
+cuisine_df = df_orders[["city","amount"]]
+cuisine_df.groupby("city").sum().plot(kind="bar")
 
 
 
-####creating column of frequency 
-
-orders['frequency'] = orders['order_id'] / orders['user_id']
-orders['frequency'] 
-
-
-######### breakfast_basket frequency 
-
-orders["breakfast_basket"]=orders["amount"]/orders["order_id"].loc[orders["cuisine"] == "Breakfast"]
-
-########## efood_basket frequency 
-
-orders["efood_basket"]=orders["amount"]/orders["order_id"].loc[orders["cuisine"] != "Breakfast"]
-orders["efood_basket"]
-
-###########grouping by cuisine finding more about user_id who spend more for each cuisine 
-
-cuisine_group = orders.groupby('cuisine')
-cuisine_group.sum()
 
 
 
-##########distribution of cuisine preference of top 5 cities' customers are spending / ordering the most 
-###trying to identify the "breakfast - lover"
 
-####for larissa
 
-plt.hist('cuisine', data=orders[orders['city'] == 'Λάρισα'], alpha=0.5, label='larissa');
 
-#####for rodos 
 
-plt.hist('cuisine', data=orders[orders['city'] == 'Ρόδος'], alpha=0.5, label='rodos');
 
-#####for volos
 
-plt.hist('cuisine', data=orders[orders['city'] == 'Βόλος'], alpha=0.5, label='volos');
 
-#####for ioannina 
 
-plt.hist('cuisine', data=orders[orders['city'] == 'Ιωάννινα'], alpha=0.5, label='Ioannina');
 
-####for xanthi
 
-plt.hist('cuisine', data=orders[orders['city'] == 'Ξάνθη'], alpha=0.6, label='Xanthi');
-plt.title('Distribution of cuisines in Larissa');
-plt.xlabel('cuisine');
-plt.legend();
 
-####scatter plot visualizing the cuisine type - orders' amount spent respectively
 
-sns.scatterplot('cuisine', 'amount', hue='cuisine', data=orders);
-plt.title('Amount of Orders, Colored by Cuisine');
