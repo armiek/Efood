@@ -50,15 +50,206 @@ cuisine_df = df_orders[["city","amount"]]
 cuisine_df.groupby("city").sum().plot(kind="bar")
 
 
+# count amount that customers spent per city
+
+df_total_amount = df_orders.city.value_counts()[:10]
+df_total_amount
 
 
 
+# Frequency - let’s calculate frequency — how many times has each customer made a purchase on the platform
+
+freq = df_orders.groupby('user_id')['order_timestamp'].count()
+freq
+
+
+## let’s check how much amount customers have been spent for each cuisine 
+
+cuisine_df = df_orders[["cuisine","amount"]]
+cuisine_df.groupby("cuisine").sum().plot(kind="bar")
+
+
+# naming x axis 
+plt.xlabel('Cuisine')
+
+# naming the y axis
+plt.ylabel('Amount of Orders')
+  
+# giving a title to my graph
+plt.title('Amount of Orders per Cuisine')
+  
+# function to show the plot
+plt.show()
+
+
+# creating df including only breakfast orders
+
+df_breakfast = df_orders[(df_orders['cuisine'] == 'Breakfast')]
+df_breakfast
+
+
+# cities who spend the most amount on total breakfast
+
+agg_data = df_breakfast.groupby('city').agg({'amount': 'sum'})
+
+
+# Sort the data by the sum of amounts in descending order and keep only the top 10 cities
+
+top_10_cities = agg_data.sort_values('amount', ascending=False).head(5)
+
+
+# Plot the bar chart
+
+plt.bar(top_10_cities.index, top_10_cities['amount'])
+plt.xlabel('City')
+plt.ylabel('Amount')
+plt.title('Top 5 Cities by Amount Customers Spend for Ordering_Breakfast')
+plt.xticks(rotation=90)
+plt.show()
+
+sns.countplot(x="cuisine", hue="paid_cash", data=df_orders); 
+plt.title('Distribution of Paid_Cash by Cuisine');
+
+
+# frequency and monetary analysis for total e_food cuisine
+############################################################
+
+
+# Group the data by user_id and aggregate by counting the number of orders and summing the amounts
+
+agg_data = df_orders.groupby('user_id').agg({'order_id': 'count', 'amount': 'sum'})
+
+# Create frequency and monetary value categories
+frequency_bins = [0, 2, 5, 10, float('inf')]
+monetary_bins = [0, 50, 100, 200, float('inf')]
+frequency_labels = ['Low', 'Medium', 'High', 'Very High']
+monetary_labels = ['Low', 'Medium', 'High', 'Very High']
+
+# Assign each customer to a frequency category
+agg_data['frequency_category'] = pd.cut(agg_data['order_id'], bins=frequency_bins, labels=frequency_labels)
+
+# Assign each customer to a monetary value category
+agg_data['monetary_category'] = pd.cut(agg_data['amount'], bins=monetary_bins, labels=monetary_labels)
+
+# Reset the index and display the aggregated data with the frequency and monetary categories
+agg_data = agg_data.reset_index()
+print(agg_data)
 
 
 
+# frequency and monetary analysis for breakfast cuisine
+#######################################################
 
 
 
+agg_data_b = df_breakfast.groupby('user_id').agg({'order_id': 'count', 'amount': 'sum'})
+
+# Create frequency and monetary value categories for breakfast df
+
+frequency_bins = [0, 2, 5, 10, float('inf')]
+monetary_bins = [0, 50, 100, 200, float('inf')]
+frequency_labels = ['Low', 'Medium', 'High', 'Very High']
+monetary_labels = ['Low', 'Medium', 'High', 'Very High']
+
+# Assign each customer to a frequency category
+agg_data_b['frequency_category'] = pd.cut(agg_data_b['order_id'], bins=frequency_bins, labels=frequency_labels)
+
+# Assign each customer to a monetary value category
+agg_data_b['monetary_category'] = pd.cut(agg_data_b['amount'], bins=monetary_bins, labels=monetary_labels)
+
+# Reset the index and display the aggregated data with the frequency and monetary categories
+agg_data_b = agg_data_b.reset_index()
+print(agg_data_b)
+
+
+# Plot the bar chart for frequency / monetary categories for total e food 
+#########################################################################
+
+plt.bar(agg_data_t['frequency_category'].value_counts().index, agg_data_t['frequency_category'].value_counts().values)
+plt.xlabel('Frequency Category')
+plt.ylabel('Number of Customers')
+plt.title('Customer Segmentation by Frequency For Total e-food')
+plt.show()
+
+# Plot the bar chart for monetary categories
+plt.bar(agg_data_t['monetary_category'].value_counts().index, agg_data_t['monetary_category'].value_counts().values)
+plt.xlabel('Monetary Category')
+plt.ylabel('Number of Customers')
+plt.title('Customer Segmentation by Monetary Value For Total e-food')
+plt.show()
+
+
+# Plot the bar chart for frequency / monetary categories for breakfast
+############################################################################
+
+plt.bar(agg_data_b['frequency_category'].value_counts().index, agg_data_b['frequency_category'].value_counts().values)
+plt.xlabel('Frequency Category')
+plt.ylabel('Number of Customers')
+plt.title('Customer Segmentation by Frequency For Breakfast')
+plt.show()
+
+
+plt.bar(agg_data_b['monetary_category'].value_counts().index, agg_data_b['monetary_category'].value_counts().values)
+plt.xlabel('Monetary Category')
+plt.ylabel('Number of Customers')
+plt.title('Customer Segmentation by Monetary Value For Breakfast')
+plt.show()
+
+
+### plot line chart for  monetary frequency for efood & breakfast cuisine
+##########################################################################
+
+# Group the first dataset by monetary  category and city, and aggregate by counting the number of orders
+agg_data = df_orders.groupby('cuisine').agg({'amount': 'sum'})
+
+# Sort the data by the sum of amounts in descending order and keep only the top 5 cities
+
+cuisine_total = agg_data.sort_values('amount', ascending=False).head(5)
+
+# Plot the bar chart
+
+plt.bar(cuisine_total.index, cuisine_total['amount'])
+plt.xlabel('City')
+plt.ylabel('Amount')
+plt.title(' Amount Customers Spend for Ordering E-food per Cuisine ')
+plt.xticks(rotation=90)
+plt.show()
+
+
+
+### plot a line chart for frequency for efood & breakfast
+############################################################
+
+# Group the first dataset by frequency category and city, and aggregate by counting the number of orders
+
+
+data_total_efood = agg_data.groupby(['frequency_category']).agg({'order_id': 'count'})
+
+# Group the second dataset by frequency category and city, and aggregate by counting the number of orders
+data_breakfast = agg_data_b.groupby(['frequency_category']).agg({'order_id': 'count'})
+
+# Pivot the first dataset so that the frequency categories are columns and the cities are rows
+pivot1 = agg_data.pivot(columns='frequency_category', values='order_id')
+
+# Pivot the second dataset so that the frequency categories are columns and the cities are rows
+pivot2 = agg_data_b.pivot(columns='frequency_category', values='order_id')
+
+# Plot the line chart for the efood dataset
+plt.plot(pivot1.index, pivot1.sum(axis=1), label='total_efood')
+
+# Plot the line chart for the breakfast dataset
+plt.plot(pivot2.index, pivot2.sum(axis=1), label='breakfast')
+
+# Add labels and title
+plt.xlabel('Frequency Category')
+plt.ylabel('Order_id')
+plt.title('Customer Segmentation by Frequency Category')
+
+# Add legend
+plt.legend()
+
+# Show the chart
+plt.show()
 
 
 
