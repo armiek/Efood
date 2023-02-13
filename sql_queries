@@ -2,6 +2,16 @@
 #####     1st query    #########
 ################################
 
+##This query creates three subqueries:
+
+# 1. base_data aggregates the total number of orders, total number of users, and total amount spent per city and cuisine.
+# 2. breakfast_data filters base_data to only include cities that have more than 1000 orders and cuisine "Breakfast". 
+# It also calculates the basket and frequency metrics.
+# 3. all_data filters base_data to only include cities that have more than 1000 orders, regardless of cuisine. 
+# It also calculates the basket and frequency metrics.
+# Finally, the main query joins breakfast_data and all_data on the city, and calculates the percent of users who have 
+# exceeded 3 orders by dividing the number of users who have placed more than 3 orders by the total number of users in the city. 
+# The result is sorted in descending order by the number of breakfast orders and limited to the top 5 cities.
 
 WITH base_data AS (
   SELECT 
@@ -68,6 +78,15 @@ LIMIT 5
 #####################################
 #####       2nd query       #######        
 ####################################
+
+## This query creates two subqueries: 
+## 1. 'city_data' aggregates the total number of orders placed by each user in each city.
+## 2. 'top_users' filters city_data to only include the top 10 users of each city, based on the number of orders they placed. 
+## the user_rank column is used to determine on the number of orders they placed. The user_rank column is used to determine 
+## the rank of each user. 
+## the main query selects the city and the sum of orders placed by the top 10, users of each city, 
+## divided by the total number of orders placed in the city. The result is a percentage.
+
 
 WITH city_data AS (
   SELECT 
