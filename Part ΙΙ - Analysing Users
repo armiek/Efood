@@ -220,18 +220,18 @@ plt.show()
 ### plot a line chart for frequency for efood & breakfast
 ############################################################
 
-# Group the first dataset by frequency category and city, and aggregate by counting the number of orders
+# Group the efood dataset by frequency category and city, and aggregate by counting the number of orders
 
 
 data_total_efood = agg_data.groupby(['frequency_category']).agg({'order_id': 'count'})
 
-# Group the second dataset by frequency category and city, and aggregate by counting the number of orders
+# Group the breakfast dataset by frequency category and city, and aggregate by counting the number of orders
 data_breakfast = agg_data_b.groupby(['frequency_category']).agg({'order_id': 'count'})
 
-# Pivot the first dataset so that the frequency categories are columns and the cities are rows
+# Pivot the efood dataset so that the frequency categories are columns and the cities are rows
 pivot1 = agg_data.pivot(columns='frequency_category', values='order_id')
 
-# Pivot the second dataset so that the frequency categories are columns and the cities are rows
+# Pivot the breakfast dataset so that the frequency categories are columns and the cities are rows
 pivot2 = agg_data_b.pivot(columns='frequency_category', values='order_id')
 
 # Plot the line chart for the efood dataset
