@@ -199,7 +199,8 @@ plt.show()
 ### plot line chart for  monetary frequency for efood & breakfast cuisine
 ##########################################################################
 
-# Group the first dataset by monetary  category and city, and aggregate by counting the number of orders
+# Group the efood dataset by monetary  category and city, and aggregate by counting the number of orders
+
 agg_data = df_orders.groupby('cuisine').agg({'amount': 'sum'})
 
 # Sort the data by the sum of amounts in descending order and keep only the top 5 cities
@@ -226,18 +227,22 @@ plt.show()
 data_total_efood = agg_data.groupby(['frequency_category']).agg({'order_id': 'count'})
 
 # Group the breakfast dataset by frequency category and city, and aggregate by counting the number of orders
+
 data_breakfast = agg_data_b.groupby(['frequency_category']).agg({'order_id': 'count'})
 
 # Pivot the efood dataset so that the frequency categories are columns and the cities are rows
 pivot1 = agg_data.pivot(columns='frequency_category', values='order_id')
 
 # Pivot the breakfast dataset so that the frequency categories are columns and the cities are rows
+
 pivot2 = agg_data_b.pivot(columns='frequency_category', values='order_id')
 
 # Plot the line chart for the efood dataset
+
 plt.plot(pivot1.index, pivot1.sum(axis=1), label='total_efood')
 
 # Plot the line chart for the breakfast dataset
+
 plt.plot(pivot2.index, pivot2.sum(axis=1), label='breakfast')
 
 # Add labels and title
