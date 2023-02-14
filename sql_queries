@@ -2,76 +2,76 @@
 #####     1st query    #########
 ################################
 
-##This query creates three subqueries:
+# This query uses a number of subqueries to calculate the metrics for each city. 
+# The first subquery, orders_by_city, aggregates the order and user count, as well as the total amount, 
+# for each city and cuisine. The second subquery, breakfast_metrics, calculates the same metrics, but only for the Breakfast cuisine. 
+# The final subquery, filtered_cities, filters the cities to only those with more than 1000 orders 
+# and aggregates the metrics for the entire city, combining the results of the first two subqueries. 
+# The final query then calculates the desired metrics based on the filtered cities and orders the result by 
+# the number of breakfast orders, showing the 5 cities with the most breakfast orders.
 
-# 1. base_data aggregates the total number of orders, total number of users, and total amount spent per city and cuisine.
-# 2. breakfast_data filters base_data to only include cities that have more than 1000 orders and cuisine "Breakfast". 
-# It also calculates the basket and frequency metrics.
-# 3. all_data filters base_data to only include cities that have more than 1000 orders, regardless of cuisine. 
-# It also calculates the basket and frequency metrics.
-# Finally, the main query joins breakfast_data and all_data on the city, and calculates the percent of users who have 
-# exceeded 3 orders by dividing the number of users who have placed more than 3 orders by the total number of users in the city. 
-# The result is sorted in descending order by the number of breakfast orders and limited to the top 5 cities.
 
-WITH base_data AS (
+
+WITH orders_by_city AS (
   SELECT 
-    city, 
-    cuisine, 
-    COUNT(DISTINCT order_id) AS total_orders, 
-    COUNT(DISTINCT user_id) AS total_users, 
-    SUM(amount) AS total_amount
+    city,
+    cuisine,
+    count(DISTINCT order_id) AS order_count,
+    count(DISTINCT user_id) AS user_count,
+    sum(amount) AS total_amount
   FROM 
-    `efood2022-a.main_assessment.orders`
+    `efood2022-a.main_assessment.orders` 
   GROUP BY 
-    city, cuisine
-),
-breakfast_data AS (
-  SELECT 
     city, 
-    total_orders, 
-    total_users, 
-    total_amount,
-    total_amount / total_orders AS basket,
-    total_orders / total_users AS frequency
-  FROM 
-    base_data
-  WHERE 
-    cuisine = 'Breakfast' AND total_orders > 1000
+    cuisine
 ),
-all_data AS (
+breakfast_metrics AS (
   SELECT 
-    city, 
-    total_orders, 
-    total_users, 
-    total_amount,
-    total_amount / total_orders AS basket,
-    total_orders / total_users AS frequency
+    city,
+    sum(CASE WHEN cuisine = 'Breakfast' THEN order_count ELSE 0 END) AS breakfast_order_count,
+    sum(CASE WHEN cuisine = 'Breakfast' THEN user_count ELSE 0 END) AS breakfast_user_count,
+    sum(CASE WHEN cuisine = 'Breakfast' THEN total_amount ELSE 0 END) AS breakfast_amount
   FROM 
-    base_data
+    orders_by_city 
+  GROUP BY 
+    city
+),
+filtered_cities AS (
+  SELECT 
+    city,
+    breakfast_order_count,
+    breakfast_user_count,
+    breakfast_amount,
+    sum(order_count) AS total_order_count,
+    sum(user_count) AS total_user_count,
+    sum(total_amount) AS total_amount
+  FROM 
+    orders_by_city 
+    JOIN breakfast_metrics 
+      ON orders_by_city.city = breakfast_metrics.city
   WHERE 
-    total_orders > 1000
+    total_order_count > 1000
+  GROUP BY 
+    city
 )
 SELECT 
-  breakfast_data.city, 
-  breakfast_data.basket AS breakfast_basket, 
-  all_data.basket AS total_basket,
-  breakfast_data.frequency AS breakfast_frequency,
-  all_data.frequency AS total_frequency,
-  (SELECT 
-    COUNT(DISTINCT user_id) 
-  FROM 
-    `efood2022-a.main_assessment.orders`
-  WHERE 
-    city = breakfast_data.city 
-    AND frequency > 3) / all_data.total_users * 100 AS percent_exceeding_3_orders
+  city, 
+  breakfast_amount / breakfast_order_count AS breakfast_basket,
+  total_amount / total_order_count AS total_basket,
+  breakfast_order_count / breakfast_user_count AS breakfast_frequency,
+  total_order_count / total_user_count AS total_frequency,
+  SUM(CASE WHEN breakfast_frequency > 3 THEN 1 ELSE 0 END) / breakfast_user_count * 100 AS pct_breakfast_users_exceed_3_orders,
+  SUM(CASE WHEN total_frequency > 3 THEN 1 ELSE 0 END) / total_user_count * 100 AS pct_total_users_exceed_3_orders
 FROM 
-  breakfast_data 
-  JOIN all_data
-  ON breakfast_data.city = all_data.city
+  filtered_cities 
+GROUP BY 
+  city
 ORDER BY 
-  breakfast_data.total_orders DESC
-LIMIT 5
+  breakfast_order_count DESC
+LIMIT 5;
 
+
+   
 
 
 
