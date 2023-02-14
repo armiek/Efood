@@ -115,9 +115,11 @@ plt.title('Distribution of Paid_Cash by Cuisine');
 ############################################################
 
 
+# frequency and monetary analysis for total e_food orders
+
 # Group the data by user_id and aggregate by counting the number of orders and summing the amounts
 
-agg_data = df_orders.groupby('user_id').agg({'order_id': 'count', 'amount': 'sum'})
+agg_data_t = df_orders.groupby('user_id').agg({'order_id': 'count', 'amount': 'sum'})
 
 # Create frequency and monetary value categories
 frequency_bins = [0, 2, 5, 10, float('inf')]
@@ -126,14 +128,16 @@ frequency_labels = ['Low', 'Medium', 'High', 'Very High']
 monetary_labels = ['Low', 'Medium', 'High', 'Very High']
 
 # Assign each customer to a frequency category
-agg_data['frequency_category'] = pd.cut(agg_data['order_id'], bins=frequency_bins, labels=frequency_labels)
+agg_data_t['frequency_category'] = pd.cut(agg_data_t['order_id'], bins=frequency_bins, labels=frequency_labels)
 
 # Assign each customer to a monetary value category
-agg_data['monetary_category'] = pd.cut(agg_data['amount'], bins=monetary_bins, labels=monetary_labels)
+agg_data_t['monetary_category'] = pd.cut(agg_data_t['amount'], bins=monetary_bins, labels=monetary_labels)
 
 # Reset the index and display the aggregated data with the frequency and monetary categories
-agg_data = agg_data.reset_index()
+agg_data_t = agg_data_t.reset_index()
 print(agg_data)
+
+
 
 
 
@@ -256,7 +260,15 @@ plt.legend()
 # Show the chart
 plt.show()
 
+## find user who is ordering less amount & less frequent
 
+a1= agg_data_b.min()
+print(a1)
+
+## find the best user who is ordering the max amount & frequency 
+
+a2= agg_data_b.max()
+print(a2)
 
 
 
